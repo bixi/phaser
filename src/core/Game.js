@@ -7,7 +7,7 @@
 /**
 * This is where the magic happens. The Game object is the heart of your game,
 * providing quick access to common functions and handling the boot process.
-* 
+*
 * "Hell, there are no rules here - we're trying to accomplish something."
 *                                                       Thomas A. Edison
 *
@@ -211,7 +211,7 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     * @property {Phaser.Physics} physics - Reference to the physics manager.
     */
     this.physics = null;
-    
+
     /**
     * @property {Phaser.PluginManager} plugins - Reference to the plugin manager.
     */
@@ -377,6 +377,16 @@ Phaser.Game = function (width, height, renderer, parent, state, transparent, ant
     */
     this._nextFpsNotification = 0;
 
+    /**
+     * @property {number} catchUpLimit - The max logic frames try to catch up per frame.
+     */
+    this.catchUpLimit = 3;
+
+    /**
+     * @property {boolean} enableSkipFrame - Skip frame when logic frame spiraling.
+     */
+    this.enableSkipFrame = true;
+
     //  Parse the configuration object (if any)
     if (arguments.length === 1 && typeof arguments[0] === 'object')
     {
@@ -507,6 +517,23 @@ Phaser.Game.prototype = {
 
         this.state = new Phaser.StateManager(this, state);
 
+        if (config['catchUpLimit'])
+        {
+            this.catchUpLimit = config['catchUpLimit'];
+        }
+        else
+        {
+            this.catchUpLimit = 3;
+        }
+
+        if (config['enableSkipFrame'] === undefined)
+        {
+            this.enableSkipFrame = true;
+        }
+        else
+        {
+            this.enableSkipFrame = config['enableSkipFrame'];
+        }
     },
 
     /**
@@ -741,7 +768,7 @@ Phaser.Game.prototype = {
         if (this.renderType !== Phaser.HEADLESS)
         {
             this.stage.smoothed = this.antialias;
-            
+
             Phaser.Canvas.addToDOM(this.canvas, this.parent, false);
             Phaser.Canvas.setTouchAction(this.canvas);
         }
@@ -794,7 +821,7 @@ Phaser.Game.prototype = {
         {
             this.updateLogic(1.0 / this.time.desiredFps);
 
-            //  Sync the scene graph after _every_ logic update to account for moved game objects                
+            //  Sync the scene graph after _every_ logic update to account for moved game objects
             this.stage.updateTransform();
 
             // call the game render update exactly once every frame
@@ -806,7 +833,7 @@ Phaser.Game.prototype = {
         }
 
         // if the logic time is spiraling upwards, skip a frame entirely
-        if (this._spiraling > 1 && !this.forceSingleUpdate)
+        if (this._spiraling > 1 && !this.forceSingleUpdate && this.enableSkipFrame)
         {
             // cause an event to warn the program that this CPU can't keep up with the current desiredFps rate
             if (this.time.time > this._nextFpsNotification)
@@ -831,7 +858,7 @@ Phaser.Game.prototype = {
             var slowStep = this.time.slowMotion * 1000.0 / this.time.desiredFps;
 
             // accumulate time until the slowStep threshold is met or exceeded... up to a limit of 3 catch-up frames at slowStep intervals
-            this._deltaTime += Math.max(Math.min(slowStep * 3, this.time.elapsed), 0);
+            this._deltaTime += Math.max(Math.min(slowStep * this.catchUpLimit, this.time.elapsed), 0);
 
             // call the game update logic multiple times if necessary to "catch up" with dropped frames
             // unless forceSingleUpdate is true
@@ -1167,9 +1194,9 @@ Object.defineProperty(Phaser.Game.prototype, "paused", {
 });
 
 /**
- * 
+ *
  * "Deleted code is debugged code." - Jeff Sickel
  *
  * ヽ(〃＾▽＾〃)ﾉ
- * 
+ *
 */
