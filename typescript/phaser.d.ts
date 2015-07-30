@@ -1231,6 +1231,8 @@ declare module Phaser {
         physicsConfig?: any;
         seed?: string;
         state?: Phaser.State;
+        catchupLimit?: number;
+        enableSkipFrame?: boolean;
 
     }
 
@@ -1283,6 +1285,8 @@ declare module Phaser {
         sound: Phaser.SoundManager;
         stage: Phaser.Stage;
         state: Phaser.StateManager;
+        catchupLimit: number;
+        enableSkipFrame: boolean;
         stepCount: number;
         stepping: boolean;
         time: Phaser.Time;
@@ -3616,7 +3620,7 @@ declare module Phaser {
         normalRightHand(): Phaser.Point;
         perp(): Phaser.Point;
         rperp(): Phaser.Point;
-        rotate(a: Phaser.Point, x: number, y: number, angle: number, asDegrees?: boolean, distance?: number): Phaser.Point;
+        rotate(x: number, y: number, angle: number, asDegrees?: boolean, distance?: number): Phaser.Point;
         set(x: number, y?: number): Phaser.Point;
         setMagnitude(magnitude: number): Phaser.Point;
         setTo(x: number, y?: number): Phaser.Point;
