@@ -6508,7 +6508,7 @@ declare module Phaser {
         physicsConfig?: any;
         seed?: string;
         state?: Phaser.State;
-        catchupLimit?: number;
+        catchUpLimit?: number;
         enableSkipFrame?: boolean;
     }
 
